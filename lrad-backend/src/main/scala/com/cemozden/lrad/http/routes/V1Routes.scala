@@ -11,9 +11,7 @@ object V1Routes extends HttpRoute {
     pathPrefix("feed") {
       concat(
         pathPrefix("add-feed") {
-          post {
-            complete(HttpEntity(ContentTypes.`application/json`, "{\"added\": false}"))
-          }
+          post { ctx => ctx.complete(HttpEntity(ContentTypes.`application/json`, "{\"added\": false}")) }
         },
         pathPrefix("update-feed") {
           put {

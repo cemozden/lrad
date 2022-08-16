@@ -3,32 +3,33 @@ package com.cemozden.lrad
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import com.cemozden.lrad.http.routes.V1Routes
+import com.typesafe.config.{Config, ConfigFactory}
 
-import java.util.UUID
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.Future
 import scala.io.StdIn
-import scala.language.postfixOps
-
-case class CompanyId(id: UUID) extends AnyVal
+import slick.jdbc.PostgresProfile.api._
 
 object Application extends App {
 
   val (host, serverPort) = ("localhost", 8080)
-  val CurrentRouteVersion = "v1"
   private implicit val system: ActorSystem = ActorSystem("lrad-system")
+  private implicit val config: Config = ConfigFactory.load()
+  private val db = Database.forConfig("lrad.database")
 
   import system.dispatcher
 
-  val bindingFuture: Future[Any] = Http()
+  private val bindingFuture = Http()
     .newServerAt("localhost", serverPort)
     .bindFlow(V1Routes.routes)
-    .map(_.addToCoordinatedShutdown(hardTerminationDeadline = 10 seconds))
-    .recoverWith { case error =>
-      println(s"Error occurred. ${error.getMessage}")
-      system.terminate().map(_ => ())
-    }
+
+  system.registerOnTermination {
+    println("Shutting down the LRAD server!")
+    db.close()
+  }
 
   println(s"LRAD server is now online at http://localhost:$serverPort/")
   StdIn.readLine()
+
+  bindingFuture
+    .flatMap(_.unbind())
+    .onComplete(_ => system.terminate())
 }

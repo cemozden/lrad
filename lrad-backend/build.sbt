@@ -11,7 +11,26 @@ val akkaDependencies = Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % AkkaHttpVersion
 )
 
-libraryDependencies ++= akkaDependencies
+val otherDependencies = Seq(
+  "com.typesafe" % "config" % "1.4.2"
+)
+
+val dbDependencies = Seq(
+  "org.postgresql" % "postgresql" % "9.4-1206-jdbc42"
+)
+
+val loggingDependencies = Seq(
+  "ch.qos.logback" % "logback-core" % "1.2.11",
+  "org.slf4j" % "slf4j-api" % "1.7.36",
+)
+
+val slickDependencies = Seq(
+  "com.typesafe.slick" %% "slick" % "3.3.3",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
+  "com.typesafe.slick" %% "slick-codegen" % "3.3.3"
+)
+
+libraryDependencies ++= akkaDependencies ++ slickDependencies ++ loggingDependencies ++ otherDependencies ++ dbDependencies
 
 addCommandAlias("lint-fmt", "scalafixAll; scalafmtAll")
 
