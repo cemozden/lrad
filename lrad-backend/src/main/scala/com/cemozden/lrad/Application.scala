@@ -26,7 +26,7 @@ object Application extends App {
     db.close()
   }
 
-  println(s"LRAD server is now online at http://localhost:$serverPort/")
+  println(s"LRAD server is now online at http://$host:$serverPort/")
   StdIn.readLine()
 
   bindingFuture
